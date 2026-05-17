@@ -1,36 +1,64 @@
-# Importa FastAPI para crear APIs y microservicios.
+# FastAPI framework.
 from fastapi import FastAPI
 
-# Crea la aplicación FastAPI.
+# SQLAlchemy session.
+from sqlalchemy.orm import Session
+
+# Base de datos.
+from db import SessionLocal, engine
+
+# Modelos ORM.
+import models
+
+# Crea tablas automáticamente.
+models.Base.metadata.create_all(bind=engine)
+
+# Crea aplicación FastAPI.
 app = FastAPI()
 
-# Lista temporal donde se almacenarán usuarios.
-# Por ahora no usamos base de datos.
-users = []
-
-# Endpoint principal para verificar que el servicio funciona.
+# Endpoint principal.
 @app.get("/")
 def home():
 
-    # Retorna un mensaje simple.
-    return {"message": "User Service Running"}
+    return {
+        "message": "User Service Running with PostgreSQL"
+    }
 
-# Endpoint para obtener todos los usuarios registrados.
+# Obtener usuarios.
 @app.get("/users")
 def get_users():
 
-    # Retorna la lista completa de usuarios.
+    # Crea sesión DB.
+    db = SessionLocal()
+
+    # Consulta usuarios.
+    users = db.query(models.User).all()
+
     return users
 
-# Endpoint para crear un nuevo usuario.
+# Crear usuario.
 @app.post("/users")
 def create_user(user: dict):
 
-    # Agrega el usuario recibido a la lista.
-    users.append(user)
+    # Sesión DB.
+    db = SessionLocal()
 
-    # Retorna mensaje de éxito y datos del usuario.
+    # Crear objeto ORM.
+    new_user = models.User(
+        name=user["name"],
+        email=user["email"]
+    )
+
+    # Guardar en PostgreSQL.
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
     return {
         "message": "User created successfully",
-        "user": user
+        "user": {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email
+        }
     }

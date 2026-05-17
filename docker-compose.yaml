@@ -1,0 +1,63 @@
+# Versión de Docker Compose.
+version: '3.9'
+
+services:
+
+  # ==========================================
+  # Servicio PostgreSQL
+  # ==========================================
+  postgres-db:
+
+    # Imagen oficial de PostgreSQL.
+    image: postgres:13
+
+    # Nombre del contenedor.
+    container_name: postgres-db
+
+    # Variables de entorno para configurar la BD.
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: mobility_db
+
+    # Expone el puerto 5432.
+    ports:
+      - "5432:5432"
+
+  # ==========================================
+  # Microservicio de usuarios
+  # ==========================================
+  user-service:
+
+    # Construye desde carpeta local.
+    build: ./microservices/user-service
+
+    # Nombre del contenedor.
+    container_name: user-service
+
+    # Expone puerto FastAPI.
+    ports:
+      - "8000:8000"
+
+    # Hace que dependa de PostgreSQL.
+    depends_on:
+      - postgres-db
+
+  # ==========================================
+  # Microservicio de viajes
+  # ==========================================
+  trip-service:
+
+    # Construye desde carpeta local.
+    build: ./microservices/trip-service
+
+    # Nombre del contenedor.
+    container_name: trip-service
+
+    # Expone puerto FastAPI.
+    ports:
+      - "8001:8001"
+
+    # Depende de PostgreSQL.
+    depends_on:
+      - postgres-db
