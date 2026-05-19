@@ -1,6 +1,9 @@
 # FastAPI framework.
 from fastapi import FastAPI
 
+# Prometheus metrics.
+from prometheus_fastapi_instrumentator import Instrumentator
+
 # SQLAlchemy session.
 from sqlalchemy.orm import Session
 
@@ -10,11 +13,26 @@ from db import SessionLocal, engine
 # Modelos ORM.
 import models
 
+# ==============================
+# PROMETHEUS
+# ==============================
+from prometheus_fastapi_instrumentator import Instrumentator
+
 # Crea tablas automáticamente.
 models.Base.metadata.create_all(bind=engine)
 
 # Crea aplicación FastAPI.
 app = FastAPI()
+
+# =====================================================
+# ACTIVAR MÉTRICAS PROMETHEUS
+# =====================================================
+Instrumentator().instrument(app).expose(app)
+
+# ==============================
+# ACTIVAR METRICS
+# ==============================
+Instrumentator().instrument(app).expose(app)
 
 # Endpoint principal.
 @app.get("/")

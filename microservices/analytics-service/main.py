@@ -5,6 +5,12 @@
 from fastapi import FastAPI
 
 # ==========================================================
+# IMPORTAR PROMETHEUS
+# ==========================================================
+
+from prometheus_fastapi_instrumentator import Instrumentator
+
+# ==========================================================
 # IMPORTAR SPARK
 # ==========================================================
 
@@ -16,6 +22,12 @@ from pyspark.sql.functions import avg
 # ==========================================================
 
 app = FastAPI()
+
+# ==========================================================
+# ACTIVAR MÉTRICAS
+# ==========================================================
+
+Instrumentator().instrument(app).expose(app)
 
 # ==========================================================
 # ENDPOINT PRINCIPAL
@@ -51,22 +63,18 @@ def analytics_summary():
     # MÉTRICAS
     # ======================================================
 
-    # Total viajes.
     total_trips = df.count()
 
-    # Promedio precio.
     avg_price = df.select(
         avg("price")
     ).collect()[0][0]
 
-    # Viajes por ciudad.
     city_data = (
         df.groupBy("city")
         .count()
         .collect()
     )
 
-    # Convertir resultado.
     cities = []
 
     for row in city_data:
@@ -76,10 +84,8 @@ def analytics_summary():
             "trips": row["count"]
         })
 
-    # Detener Spark.
     spark.stop()
 
-    # Respuesta API.
     return {
 
         "total_trips": total_trips,

@@ -1,0 +1,47 @@
+# ==========================================================
+# CONFIGURACIÓN GLOBAL DE PROMETHEUS
+# ==========================================================
+
+global:
+
+  # Cada cuánto Prometheus revisará métricas.
+  scrape_interval: 5s
+
+# ==========================================================
+# SERVICIOS A MONITOREAR
+# ==========================================================
+
+scrape_configs:
+
+  # --------------------------------------------------------
+  # MONITOREO USER-SERVICE
+  # --------------------------------------------------------
+
+  - job_name: "user-service"
+
+    static_configs:
+
+      # Dirección interna Docker.
+      - targets: ["user-service:8000"]
+
+  # --------------------------------------------------------
+  # MONITOREO TRIP-SERVICE
+  # --------------------------------------------------------
+
+  - job_name: "trip-service"
+
+    static_configs:
+
+      # Puerto del microservicio.
+      - targets: ["trip-service:8001"]
+
+  # --------------------------------------------------------
+  # MONITOREO ANALYTICS-SERVICE
+  # --------------------------------------------------------
+
+  - job_name: "analytics-service"
+
+    static_configs:
+
+      # Servicio analítico Spark.
+      - targets: ["analytics-service:8002"]

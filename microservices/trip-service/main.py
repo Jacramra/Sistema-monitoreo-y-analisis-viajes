@@ -1,6 +1,9 @@
 # Framework FastAPI.
 from fastapi import FastAPI
 
+# Prometheus metrics.
+from prometheus_fastapi_instrumentator import Instrumentator
+
 # Base de datos.
 from db import SessionLocal, engine
 
@@ -12,6 +15,11 @@ models.Base.metadata.create_all(bind=engine)
 
 # Crear aplicación.
 app = FastAPI()
+
+# =====================================================
+# ACTIVAR MÉTRICAS PROMETHEUS
+# =====================================================
+Instrumentator().instrument(app).expose(app)
 
 # Endpoint principal.
 @app.get("/")

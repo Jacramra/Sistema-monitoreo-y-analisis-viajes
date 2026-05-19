@@ -61,3 +61,56 @@ services:
     # Depende de PostgreSQL.
     depends_on:
       - postgres-db
+
+  # ==========================================
+  # Microservicio analítico Spark
+  # ==========================================
+  analytics-service:
+
+    # Construye desde carpeta local.
+    build: ./microservices/analytics-service
+
+    # Nombre del contenedor.
+    container_name: analytics-service
+
+    # Expone puerto FastAPI.
+    ports:
+      - "8002:8002"
+
+    # Depende de PostgreSQL.
+    depends_on:
+      - postgres-db
+      
+  # ==========================================
+  # Prometheus - Monitoreo
+  # ==========================================
+  prometheus:
+
+    # Imagen oficial Prometheus.
+    image: prom/prometheus
+
+    # Nombre del contenedor.
+    container_name: prometheus
+
+    # Puerto de acceso web.
+    ports:
+      - "9090:9090"
+
+    # Carga configuración local.
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  # ==========================================
+  # Grafana - Dashboards
+  # ==========================================
+  grafana:
+
+    # Imagen oficial Grafana.
+    image: grafana/grafana
+
+    # Nombre del contenedor.
+    container_name: grafana
+
+    # Puerto interfaz web.
+    ports:
+      - "3000:3000"
